@@ -21,7 +21,7 @@ public class StudentService {
     }
 
     public Student findStudent(long idStudent) {
-        return studentRepository.findById(idStudent).get();
+        return studentRepository.findById(idStudent).orElse(null);
     }
 
     public Student editStudent(Student student) {
