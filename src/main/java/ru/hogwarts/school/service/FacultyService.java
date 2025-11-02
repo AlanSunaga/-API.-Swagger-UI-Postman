@@ -21,10 +21,13 @@ public class FacultyService {
     }
 
     public Faculty findFaculty(long idFaculty) {
-        return facultyRepository.findById(idFaculty).get();
+        return facultyRepository.findById(idFaculty).orElse(null);
     }
 
     public Faculty editFaculty(Faculty faculty) {
+        if (faculty == null || faculty.getId() == null) {
+            return null;
+        }
         if (facultyRepository.existsById(faculty.getId())) {
             return facultyRepository.save(faculty);
         }

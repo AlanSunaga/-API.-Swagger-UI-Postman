@@ -21,10 +21,14 @@ public class StudentService {
     }
 
     public Student findStudent(long idStudent) {
-        return studentRepository.findById(idStudent).get();
+
+        return studentRepository.findById(idStudent).orElse(null);
     }
 
     public Student editStudent(Student student) {
+        if (student == null || student.getId() == null) {
+            return null;
+        }
         if (studentRepository.existsById(student.getId())) {
             return studentRepository.save(student);
         }
