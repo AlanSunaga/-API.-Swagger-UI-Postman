@@ -47,6 +47,14 @@ public class Faculty {
         this.id = id;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Faculty faculty)) return false;
