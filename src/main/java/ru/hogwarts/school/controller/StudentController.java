@@ -6,6 +6,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/students")
@@ -13,6 +14,7 @@ public class StudentController {
 
 
     private final StudentService studentService;
+
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
@@ -28,15 +30,21 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Student>> getAllStudents() {
+    public ResponseEntity<Collection<Student>> findStudents(@RequestParam(required = false) String name, @RequestParam(required = false) Integer age, @RequestParam(required = false) String part) {
+
+        if (name != null && !name.isBlank()) {
+            return ResponseEntity.ok(studentService.findByNameIgnoreCase(name));
+        }
+        if (age != null) {
+            return ResponseEntity.ok(studentService.findStudentByAge(age));
+        }
+        if (part != null && !part.isBlank()) {
+            return ResponseEntity.ok(studentService.findAllByNameContainsIgnoreCase(part));
+        }
+
+
         return ResponseEntity.ok(studentService.getAllStudents());
     }
-
-    @GetMapping("/age/{age}")
-    public Collection<Student> getAllStudentsWithAge(@PathVariable int age) {
-        return studentService.getAllStudentsWithAge(age);
-    }
-
 
     @PostMapping
     public Student addStudent(@RequestBody Student student) {
@@ -56,6 +64,38 @@ public class StudentController {
     public ResponseEntity<Student> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/age-range")
+    public ResponseEntity<Collection<Student>> getStudentsByAgeRange(
+            @RequestParam int min,
+            @RequestParam int max) {
+
+        // Валидация параметров
+        if (min < 0 || max < 0) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+        if (min > max) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        Collection<Student> students = studentService.findByAgeBetween(min, max);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/ordered-by-age")
+    public ResponseEntity<Collection<Student>> getAllStudentsOrderedByAge(
+            @RequestParam(defaultValue = "Сортировка по возрасту") String order) {
+
+        Collection<Student> students;
+        students = studentService.getAllStudentsOrderedByAgeAsc();
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/age-less-than-id")
+    public ResponseEntity<Collection<Student>> getStudentsWithAgeLessThanId(@RequestParam Long id) {
+        Collection<Student> students = studentService.getStudentsWithAgeLessThanId(id);
+        return ResponseEntity.ok(students);
     }
 
 
